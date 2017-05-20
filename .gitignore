@@ -1,0 +1,8 @@
+*.pyc
+*.txt
+*.csv
+*.pdf
+*.gz
+*.gdoc
+*.docx
+*.pptx

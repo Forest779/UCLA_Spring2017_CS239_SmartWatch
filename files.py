@@ -1,10 +1,18 @@
 import gzip
-
+import os
 
 class DataProcessing:
 
     def __init__(self):
-        self.dict = None
+        self.dict = {}
+
+    def generate_filelist(self):
+        res = []
+        for root,dirs,files in os.walk(os.getcwd()):
+            for filename in files:
+                if "65539" not in filename and "gz" in filename:
+                    res.append(filename)
+        return res
 
     #look at the list[string] files of each 4s window and decide whether size > 80% of certain threshold
     def isRight(self,entry_list, threshold):
@@ -14,9 +22,10 @@ class DataProcessing:
     #look at the list[string] files and decide whether the label is pure
     def isPure(self,entry_list):
 
-        start_label = entry_list[0].split()[-1]
+        start_label = entry_list[0].split(',')[-1].strip('\n')
+
         for line in entry_list:
-            label = line.split()[-1]
+            label = line.split(',')[-1].strip('\n')
             if label != start_label:
                 return False
         return True
@@ -28,8 +37,8 @@ class DataProcessing:
             data = f.readlines()
             f.close()
 
-            start = int(data[0].split()[0])
-            end = int(data[-1].split()[0])
+            start = int(data[0].split(',')[0])
+            end = int(data[-1].split(',')[0])
 
             num_4s = (end - start)/4000
 
@@ -46,25 +55,28 @@ class DataProcessing:
         f.close()
 
         res = []
-        start_time = int(data[0].split()[0])
-        start_step = int(data[0].split()[1])
+
+
+        start_time = int(data[0].split(',')[0])
+        start_step = int(float(data[0].split(',')[1]))
 
         for i in xrange(1,len(data)):
             newline = []
-            items = data[i].split()
+            items = data[i].split(',')
 
             time = int(items[0])
-            step = int(items[1])
-            label = items[-1]
+            step = int(float(items[1]))
+            label = items[-1].strip('\n')
 
-            speed = float(step - start_step)/(time-start_time)
+            if (time-start_time) > 0:
+                speed = float(step - start_step)/(time-start_time)*1000
 
             #each line of return list: [time:int, speed:float, label:string]
-            newline.append(time)
-            newline.append(speed)
-            newline.append(label)
+                newline.append(time)
+                newline.append(speed)
+                newline.append(label)
 
-            res.append(newline)
+                res.append(newline)
 
             start_time = time
             start_step = step
