@@ -127,13 +127,16 @@ class data_reader():
 					print 'Length of data after processing '+str(len(feature_label[1]))+'\n'
 					feature_array_list.append(feature_label[0])
 					label_array_list.append(feature_label[1])
+				if filename[-3:]=='.gz' and ''
 		return (np.concatenate(feature_array_list,axis=1),np.concatenate(label_array_list,axis=1))
 
 	def __multiple_dir_multiFileArray(self,person_datapath):
 		feature_array_list=[]
 		label_array_list=[]
 		for root, dirs, files in os.walk(person_datapath):
+
 			if 'data' in root:
+ 
 				start_end_tup=self.__get_start_end(root)
 				cuttingpoints=self.__generate_cutting_point(start_end_tup)
 
