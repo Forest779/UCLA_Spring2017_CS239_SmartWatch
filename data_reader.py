@@ -148,6 +148,7 @@ class data_reader():
 		self.feature_final=np.concatenate(feature_array_list,axis=0)
 		label_toVote=np.concatenate(label_array_list,axis=0)
 		self.label_Voted=self.__major_vote(label_toVote)
+		self.add_step_data(person_datapath)
 		return (self.feature_final,self.label_Voted)
 		#return np.concatenate([feature_final,label_Voted],axis=1)
 
