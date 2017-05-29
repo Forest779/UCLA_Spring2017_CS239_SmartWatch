@@ -8,6 +8,7 @@ class data_reader():
 	def __init__(self):
 		self.feature_final=None
 		self.label_Voted=None
+		self.step_data = None
 
 
 	def __get_start_end(self,path):
@@ -157,6 +158,12 @@ class data_reader():
 		np.savetxt(filename+'.feature.mydata',self.feature_final,delimiter=',')
 		np.savetxt(filename+'.label.mydata',self.label_Voted, fmt='%s',delimiter=',')
 
+        def add_step_data(self,personal_datapath):
+            step_data = self.multi_dir_step(personal_datapath)
+            step_data = step_data.reshape(len(step_data),1)
+            self.feature_final = np.append(self.feature_final,step_data,axis=1)
+            print "Step data added"
+
 
         def multi_dir_step(self,person_datapath):
             feature_array_list=[]
@@ -166,7 +173,9 @@ class data_reader():
                     cuttingpoints=self.__generate_cutting_point(start_end_tup)
                     feature_label=self.same_dir_step(root,cuttingpoints)
                     feature_array_list.append(feature_label)
-            return np.concatenate(feature_array_list)
+
+            self.step_data = np.concatenate(feature_array_list)
+            return self.step_data
 
 
         def same_dir_step(self,root_path,cuttingpoints):
@@ -183,6 +192,7 @@ class data_reader():
 
 
 	def handle_step(self,filename, cuttingpoints):
+	    cuttingpoints = cuttingpoints[:-1]
 
             f = gzip.open(filename, 'rb')
             data = f.readlines()

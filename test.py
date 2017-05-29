@@ -4,4 +4,6 @@ reader = data_reader()
 
 root = os.getcwd()
 
-res = reader.multi_dir_step(root)
+reader.read_array(root)
+
+reader.add_step_data(root)
