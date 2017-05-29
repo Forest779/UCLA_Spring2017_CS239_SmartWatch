@@ -9,7 +9,6 @@ class data_reader():
 		self.feature_final=None
 		self.label_Voted=None
 
-		self.cuttingpoint = None #To Hao: When you generate the cuttingpoint, assign this so that I can use in my function
 
 	def __get_start_end(self,path):
 		start_list=[]
@@ -127,7 +126,7 @@ class data_reader():
 					print 'Length of data after processing '+str(len(feature_label[1]))+'\n'
 					feature_array_list.append(feature_label[0])
 					label_array_list.append(feature_label[1])
-				if filename[-3:]=='.gz' and ''
+				#if filename[-3:]=='.gz' a
 		return (np.concatenate(feature_array_list,axis=1),np.concatenate(label_array_list,axis=1))
 
 	def __multiple_dir_multiFileArray(self,person_datapath):
@@ -136,15 +135,15 @@ class data_reader():
 		for root, dirs, files in os.walk(person_datapath):
 
 			if 'data' in root:
- 
+
 				start_end_tup=self.__get_start_end(root)
 				cuttingpoints=self.__generate_cutting_point(start_end_tup)
-
-				self.cuttingpoint = cuttingpoints
 
 				feature_label=self.__same_dir_mutipleFileToArray(root,cuttingpoints)
 				feature_array_list.append(feature_label[0])
 				label_array_list.append(feature_label[1])
+
+
 		self.feature_final=np.concatenate(feature_array_list,axis=0)
 		label_toVote=np.concatenate(label_array_list,axis=0)
 		self.label_Voted=self.__major_vote(label_toVote)
@@ -157,6 +156,30 @@ class data_reader():
 	def save_data(self,filename):
 		np.savetxt(filename+'.feature.mydata',self.feature_final,delimiter=',')
 		np.savetxt(filename+'.label.mydata',self.label_Voted, fmt='%s',delimiter=',')
+
+
+        def multi_dir_step(self,person_datapath):
+            feature_array_list=[]
+            for root, dirs, files in os.walk(person_datapath):
+                if 'data' in root:
+                    start_end_tup=self.__get_start_end(root)
+                    cuttingpoints=self.__generate_cutting_point(start_end_tup)
+                    feature_label=self.same_dir_step(root,cuttingpoints)
+                    feature_array_list.append(feature_label)
+            return np.concatenate(feature_array_list)
+
+
+        def same_dir_step(self,root_path,cuttingpoints):
+            feature_array_list=[]
+            for root, dirs, files in os.walk(root_path):
+                for filename in files:
+                    if filename[-3:]=='.gz' and 'sensor' in filename and 'step' in filename:
+                        print 'Reading... '+filename
+                        filepath=root_path+'/'+filename
+                        feature_label = self.handle_step(filepath,cuttingpoints)
+                        print 'Length of data after processing '+str(len(feature_label))+'\n'
+                        feature_array_list.append(feature_label)
+            return np.concatenate(feature_array_list)
 
 
 	def handle_step(self,filename, cuttingpoints):
@@ -177,14 +200,12 @@ class data_reader():
                 times.append(time)
                 steps.append(step)
 
-
-
-            f = interp1d(times, steps)
+            f = interp1d(times, steps,fill_value = "extrapolate")
 
             new_array = []
 
             for entry in cuttingpoints:
-            	
+
             	new_step = f(entry)
             	new_data = [entry,new_step]
             	new_array.append(new_data)
@@ -218,4 +239,5 @@ class data_reader():
                 start_time = time
                 start_step = step
 
-            return res
+            res = np.asarray(res)
+            return res[:,1]
