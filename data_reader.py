@@ -197,8 +197,13 @@ class data_reader():
                 time = int(items[0])
                 step = int(float(items[1]))
 
-                times.append(time)
-                steps.append(step)
+                if len(times) == 0 or time != times[-1]:
+
+                    times.append(time)
+                    steps.append(step)
+
+            if len(times) == 1:
+                return [times[0]]*len(cuttingpoints)
 
             f = interp1d(times, steps,fill_value = "extrapolate")
 
