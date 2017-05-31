@@ -6,6 +6,7 @@ from scipy.interpolate import interp1d
 
 class data_reader():
 	def __init__(self):
+		print 'Hwll'
 		self.feature_final=None
 		self.label_Voted=None
 		self.step_data = None
