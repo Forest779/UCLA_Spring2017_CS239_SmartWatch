@@ -6,7 +6,6 @@ from scipy.interpolate import interp1d
 
 class data_reader():
 	def __init__(self):
-		print 'Hwll'
 		self.feature_final=None
 		self.label_Voted=None
 		self.step_data = None
@@ -154,11 +153,18 @@ class data_reader():
 		#return np.concatenate([feature_final,label_Voted],axis=1)
 
 	def read_array(self,person_datapath):
+		self.feature_final=None
+		self.label_Voted=None
+		self.step_data = None
 		return self.__multiple_dir_multiFileArray(person_datapath)
 
 	def save_data(self,filename):
 		np.savetxt(filename+'.feature.mydata',self.feature_final,delimiter=',')
 		np.savetxt(filename+'.label.mydata',self.label_Voted, fmt='%s',delimiter=',')
+
+	def load_data(self,filename):
+		self.feature_label=np.loadtxt(filename+'.feature.mydata',delimiter=',')
+		self.label_Voted=np.loadtxt(filename+'.label.mydata',dtype='str',delimiter=',')
 
         def add_step_data(self,personal_datapath):
             step_data = self.multi_dir_step(personal_datapath)
