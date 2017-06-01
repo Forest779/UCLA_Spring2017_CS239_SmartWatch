@@ -3,6 +3,7 @@ import numpy as np
 import os
 import csv
 from scipy.interpolate import interp1d
+from TFreqAnalysis import *
 
 class data_reader():
 	def __init__(self):
@@ -56,7 +57,7 @@ class data_reader():
 				feature_line.append(min(a[:,i].astype(np.float)))
 				feature_line.append(np.average(a[:,i].astype(np.float)))
 				feature_line.append(np.std(a[:,i].astype(np.float)))
-			return (feature_line,[batch[0][-1]])
+			return [feature_line,[batch[0][-1]]]
 		else:
 			return None
 
@@ -108,6 +109,16 @@ class data_reader():
 				batch.append(row)
 			if cur_time>cuttingpoints[cutting_index+1]:
 				line=self.__process_batch(batch)
+
+				if "linear_acceleration" in filepath:
+				    #print "Adding Fast Fourier transform data for linear_acceleration"
+				    addition = self.__fft(batch)
+
+				    line[0] += addition
+
+				    #print "FFT data added"
+
+
 				feature_Array.append(line[0])
 				label_Array.append(line[1])
 				batch=[]
@@ -264,3 +275,9 @@ class data_reader():
 
             res = np.asarray(res)
             return res[:,1]
+
+        def __fft(self,batch):
+            newbatch = np.asarray(batch)
+            newbatch = newbatch[:,:4].astype(np.float)
+            #print newbatch
+            return timeFreqAnalysis(newbatch)

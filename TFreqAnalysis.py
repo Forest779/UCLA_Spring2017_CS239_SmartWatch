@@ -53,6 +53,7 @@ def timeFreqAnalysis(dataPoint):
     ans = fftTransform(res, msPerSecond / sampleRate, timePeriod / msPerSecond)
     return ans
 
+'''
 if __name__ == '__main__':
     dataPoint = np.loadtxt(open("test.csv","r"),delimiter=",",skiprows=0)
     dataPoint = dataPoint.tolist()
@@ -63,3 +64,4 @@ if __name__ == '__main__':
     #     fd.write(line.encode('utf-8'))
     ans = timeFreqAnalysis(dataPoint)
     print ans
+'''
