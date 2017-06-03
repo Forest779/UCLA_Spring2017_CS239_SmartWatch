@@ -118,7 +118,6 @@ class data_reader():
 
 				    #print "FFT data added"
 
-
 				feature_Array.append(line[0])
 				label_Array.append(line[1])
 				batch=[]
