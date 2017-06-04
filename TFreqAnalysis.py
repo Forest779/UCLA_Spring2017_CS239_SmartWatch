@@ -30,7 +30,10 @@ def preProcess(dataPoint, sampleRate, timePeriod):
     resLen = len(res)
     lossPoint = expLen - resLen
     stepX = stepY = stepZ = 0
-    for i in range(endIndex - lossPoint, endIndex):
+    pointCnt = endIndex - lossPoint
+    if pointCnt < 0:
+        pointCnt = 1
+    for i in range(pointCnt, endIndex):
         p1 = dataPoint[i]
         p2 = dataPoint[i - 1]
         stepX += (p1[1] - p2[1]) / (p1[0] - p2[0])
