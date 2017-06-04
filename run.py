@@ -10,7 +10,7 @@ class data_processing(object):
 
         self.root = "/Users/xiaoyan/Google Drive/CS-239/Data Set/" #Set up the route to the data
         #self.namelist = ["Dashing Gu","Zhehan Li", "Xiao Yan", "Hao Wu"]  # choose the folder contains the training data
-        self.namelist = ["Hao Wu"]
+        self.namelist = ["Zhehan Li"]
 
         self.test_name = "Test" # choose the folder contains the test data
 
