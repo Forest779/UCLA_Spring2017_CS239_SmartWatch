@@ -9,7 +9,9 @@ class data_processing(object):
     def __init__(self):
 
         self.root = "/Users/xiaoyan/Google Drive/CS-239/Data Set/" #Set up the route to the data
-        self.namelist = ["Dashing Gu","Zhehan Li", "Xiao Yan"]  # choose the folder contains the training data
+        #self.namelist = ["Dashing Gu","Zhehan Li", "Xiao Yan", "Hao Wu"]  # choose the folder contains the training data
+        self.namelist = ["Hao Wu"]
+
         self.test_name = "Test" # choose the folder contains the test data
 
         self.X_train_total = None
@@ -22,6 +24,22 @@ class data_processing(object):
 
         self.shuffle = False
 
+    def set_root(self,root_path):
+        self.root = root_path
+        print "Root path to data is:"
+        print self.root
+
+
+    def set_test_person(self,test_person):
+        self.test_name = test_person
+
+        print "Persons for training data:"
+        for person in self.namelist:
+            if person != self.test_name:
+                print person
+
+        print "Person for test data:"
+        print self.test_name
 
     def generate_training_data(self):
 
@@ -30,9 +48,10 @@ class data_processing(object):
         X_train_list = []
         Y_train_list = []
         for name in self.namelist:
-            X_tran,Y_tran = Tran_reader.read_array(self.root+name) # Training set
-            X_train_list.append(X_tran)
-            Y_train_list.append(Y_tran)
+            if name != self.test_name:
+                X_tran,Y_tran = Tran_reader.read_array(self.root+name) # Training set
+                X_train_list.append(X_tran)
+                Y_train_list.append(Y_tran)
 
         self.X_train_total = np.concatenate(X_train_list,axis=0)
         self.Y_train_total = np.concatenate(Y_train_list,axis=0)
@@ -146,6 +165,8 @@ class data_processing(object):
 
     def model_training(self):
         print ""
+        print "Test person is: " + self.test_name
+        print ""
         # Model Training
         clf = RandomForestClassifier(n_estimators=500, max_depth = 100)
 
@@ -173,6 +194,8 @@ if __name__ == '__main__':
 
     #generate file once
     model = data_processing()
+    #model.set_root("/path/to/Data Set/")
+    model.set_test_person("Xiao Yan") #choose the person to be tested
     model.generate_training_data()
     model.generate_test_data()
     model.model_training()
@@ -194,8 +217,3 @@ if __name__ == '__main__':
     #reset to original state (if the data is saved)
     #model.reset_to_noshuffle()
     #model.model_training()
-
-#recall = recall_score(Y_true, y_test, average=None)
-#print "Recall: Sitting: ", recall[0], "Standing: ", recall[1], "Walking: ", recall[2]
-#precision = precision_score(Y_true, y_test, average=None)
-#print "Precision: Sitting: ", precision[0], "Standing: ", precision[1], "Walking: ", precision[2]
