@@ -7,3 +7,4 @@
 *.docx
 *.pptx
 *.data
+.DS_Store
