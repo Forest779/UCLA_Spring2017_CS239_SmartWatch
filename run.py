@@ -2,7 +2,7 @@ from data_reader import *
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import *
 from sklearn.utils import shuffle
-
+import matplotlib.pyplot as plt
 
 class data_processing(object):
 
@@ -23,6 +23,10 @@ class data_processing(object):
         self.Y_pred = None
 
         self.shuffle = False
+
+        self.no_shuffle_metric = []
+        self.shuffle_metric = []
+
 
     def set_root(self,root_path):
         self.root = root_path
@@ -190,6 +194,51 @@ class data_processing(object):
         print classification_report(self.Y_true, self.Y_pred)
 
 
+
+
+
+
+    def draw_shuffle_figure(self):
+
+        no_shuffle = self.no_shuffle_metric
+        shuffle = self.shuffle_metric
+
+    #list: 1)acc, 2)precision, 3)recall, 4)F1 score
+
+        if len(no_shuffle) != 4 or len(shuffle) != 4:
+            raise ValueError, "Input is wrong"
+
+        else:
+            fig, ax = plt.subplots()
+            index = np.arange(len(shuffle))
+
+
+        # create plot
+
+            bar_width = 0.35
+            opacity = 0.8
+
+            rects1 = plt.bar(index, no_shuffle, bar_width,
+                            alpha=opacity,
+                            color='b',
+                            label='without shuffle')
+
+            rects2 = plt.bar(index + bar_width, shuffle, bar_width,
+                            alpha=opacity,
+                            color='g',
+                            label='shuffle')
+
+            plt.xlabel('Metrics')
+            plt.ylabel('Scores')
+            plt.title('Metrics without shuffle vs shuffle')
+            plt.xticks(index + bar_width, ('Acc', 'Prec', 'Rec', 'F1'))
+            plt.legend()
+
+            plt.tight_layout()
+            plt.savefig("shuffle.png")
+            plt.show()
+
+
 if __name__ == '__main__':
 
     #generate file once
@@ -200,18 +249,20 @@ if __name__ == '__main__':
     model.generate_test_data()
     model.model_training()
 
+
     #save and load multiple times
 
-    model.save_training_data()
-    model.save_test_data()
+    #model.save_training_data()
+    #model.save_test_data()
     #model.load_training_data()
     #model.load_test_data()
     #model.model_training()
 
     #shuffle
 
-    #model.shuffle_data()
-    #model.model_training()
+    model.shuffle_data()
+    model.model_training()
+    #model.draw_shuffle_figure()
 
 
     #reset to original state (if the data is saved)
