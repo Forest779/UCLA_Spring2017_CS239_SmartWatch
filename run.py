@@ -10,7 +10,7 @@ class data_processing(object):
 
         self.root = "/Users/xiaoyan/Google Drive/CS-239/Data Set/" #Set up the route to the data
         #self.namelist = ["Dashing Gu","Zhehan Li", "Xiao Yan", "Hao Wu"]  # choose the folder contains the training data
-        self.namelist = ["Zhehan Li"]
+        self.namelist = ["Hao Wu"]
 
         self.test_name = "Test" # choose the folder contains the test data
 
@@ -189,12 +189,24 @@ class data_processing(object):
         print "Report:"
         print classification_report(self.Y_true, self.Y_pred)
 
+    def randomforest_tuning(self, est_range, mdep_range):
+        acc_result = []
+        for i in est_range:
+            for j in mdep_range:
+                clf = RandomForestClassifier(n_estimators=i, max_depth = j)
+                clf.fit(self.X_train_total,self.Y_train_total)
+                self.Y_pred = clf.predict(self.X_test)
+                acc = accuracy_score(self.Y_true, self.Y_pred, normalize=True, sample_weight=None)
+                acc_result.append(acc)
+                print "n_estimators = ", i, " max_depth = ", j," | Accuracy: ", acc
 
 if __name__ == '__main__':
 
     #generate file once
+
     model = data_processing()
-    #model.set_root("/path/to/Data Set/")
+    # model.set_root("/path/to/Data Set/")
+    model.set_root("/Users/lizhehan/UCLA/CS-239/Data Set/")
     model.set_test_person("Xiao Yan") #choose the person to be tested
     model.generate_training_data()
     model.generate_test_data()
@@ -204,14 +216,16 @@ if __name__ == '__main__':
 
     model.save_training_data()
     model.save_test_data()
-    #model.load_training_data()
-    #model.load_test_data()
-    #model.model_training()
+
+    # model.load_training_data()
+    # model.load_test_data()
+    # model.model_training()
+    # model.randomforest_tuning(xrange(500,2001,500), xrange(20,101,20))
 
     #shuffle
 
-    #model.shuffle_data()
-    #model.model_training()
+    # model.shuffle_data()
+    # model.model_training()
 
 
     #reset to original state (if the data is saved)
