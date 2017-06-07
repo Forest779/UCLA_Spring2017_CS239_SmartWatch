@@ -7,4 +7,5 @@
 *.docx
 *.pptx
 *.data
+*.mydata
 .DS_Store

@@ -27,7 +27,6 @@ class data_processing(object):
         self.no_shuffle_metric = []
         self.shuffle_metric = []
 
-
     def set_root(self,root_path):
         if root_path[-1] != "/":
             root_path += "/"
@@ -169,7 +168,7 @@ class data_processing(object):
             raise IOError,"Error loading test data"
 
 
-    def model_training(self):
+    def model_training(self, feature_report = False):
         print ""
         print "Test person is: " + self.test_name
         print ""
@@ -195,6 +194,9 @@ class data_processing(object):
         print "Report:"
         print classification_report(self.Y_true, self.Y_pred)
 
+        if feature_report:
+            importance = clf.feature_importances_
+            print importance
 
         data = precision_recall_fscore_support(self.Y_true, self.Y_pred, average='macro')
 
@@ -206,6 +208,19 @@ class data_processing(object):
             self.no_shuffle_metric.append(acc)
             for i in range(3):
                 self.no_shuffle_metric.append(data[i])
+
+
+
+    def randomforest_tuning(self, est_range, mdep_range):
+        acc_result = []
+        for i in est_range:
+            for j in mdep_range:
+                clf = RandomForestClassifier(n_estimators=i, max_depth = j)
+                clf.fit(self.X_train_total,self.Y_train_total)
+                self.Y_pred = clf.predict(self.X_test)
+                acc = accuracy_score(self.Y_true, self.Y_pred, normalize=True, sample_weight=None)
+                acc_result.append(acc)
+                print "n_estimators = ", i, " max_depth = ", j," | Accuracy: ", acc
 
 
     def draw_shuffle_figure(self):
@@ -254,6 +269,7 @@ class data_processing(object):
 if __name__ == '__main__':
 
     #generate file once
+
     model = data_processing()
     #model.set_root("/path/to/Data Set/")
     model.set_test_person("Hao Wu") #choose the person to be tested
@@ -263,12 +279,12 @@ if __name__ == '__main__':
     model.save_test_data()
     model.save_training_data()
 
-    model.model_training()
+    model.model_training(feature_report = True)
     model.draw_shuffle_figure()
 
-
-
     #save and load multiple times
+    # model.save_training_data()
+    # model.save_test_data()
 
     #model.save_training_data()
     #model.save_test_data()
@@ -277,11 +293,9 @@ if __name__ == '__main__':
     #model.model_training()
 
     #shuffle
-
     model.shuffle_data()
     model.model_training()
     model.draw_shuffle_figure()
-
 
     #reset to original state (if the data is saved)
     #model.reset_to_noshuffle()
