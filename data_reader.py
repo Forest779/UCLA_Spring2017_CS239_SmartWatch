@@ -4,6 +4,7 @@ import os
 import csv
 from scipy.interpolate import interp1d
 from TFreqAnalysis import *
+import math
 
 class data_reader():
 	def __init__(self):
@@ -108,8 +109,9 @@ class data_reader():
 			if cur_time>=cuttingpoints[cutting_index] and cur_time<cuttingpoints[cutting_index+1]:
 				batch.append(row)
 			if cur_time>cuttingpoints[cutting_index+1]:
-				line=self.__process_batch(batch)
+				#line=self.__process_batch(batch)
 
+                                line=self.__processBatchNew(batch)
 				if "linear_acceleration" in filepath:
 				    #print "Adding Fast Fourier transform data for linear_acceleration"
 				    addition = self.__fft(batch)
@@ -280,3 +282,29 @@ class data_reader():
             newbatch = newbatch[:,:4].astype(np.float)
             #print newbatch
             return timeFreqAnalysis(newbatch)
+
+
+        def __processBatchNew(self,batch):
+                if not batch:
+		      print 'Warning! the batch is empty'
+
+		feature_line=[]
+		new_batch = []
+		if True:# All the batch has the pure label in the training set
+		    for entry in batch:
+		        x = float(entry[1])
+		        y = float(entry[2])
+		        z = float(entry[3])
+		        SMV = math.sqrt(x**2 + y**2 + z**2)
+
+                        new_batch.append(SMV)
+
+                    feature_line.append(max(new_batch))
+                    feature_line.append(min(new_batch))
+                    feature_line.append(np.average(new_batch))
+                    feature_line.append(np.std(new_batch))
+
+		    return [feature_line,[batch[0][-1]]]
+
+		else:
+		    return None

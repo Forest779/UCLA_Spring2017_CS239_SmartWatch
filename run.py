@@ -9,8 +9,8 @@ class data_processing(object):
     def __init__(self):
 
         self.root = "/Users/xiaoyan/Google Drive/CS-239/Data Set/" #Set up the route to the data
-        #self.namelist = ["Dashing Gu","Zhehan Li", "Xiao Yan", "Hao Wu"]  # choose the folder contains the training data
-        self.namelist = ["Zhehan Li"]
+        self.namelist = ["Dashing Gu","Zhehan Li", "Xiao Yan", "Hao Wu"]  # choose the folder contains the training data
+        #self.namelist = ["Zhehan Li"]
 
         self.test_name = "Test" # choose the folder contains the test data
 
@@ -29,6 +29,8 @@ class data_processing(object):
 
 
     def set_root(self,root_path):
+        if root_path[-1] != "/":
+            root_path += "/"
         self.root = root_path
         print "Root path to data is:"
         print self.root
@@ -194,8 +196,16 @@ class data_processing(object):
         print classification_report(self.Y_true, self.Y_pred)
 
 
+        data = precision_recall_fscore_support(self.Y_true, self.Y_pred, average='macro')
 
-
+        if self.shuffle:
+            self.shuffle_metric.append(acc)
+            for i in range(3):
+                self.shuffle_metric.append(data[i])
+        else:
+            self.no_shuffle_metric.append(acc)
+            for i in range(3):
+                self.no_shuffle_metric.append(data[i])
 
 
     def draw_shuffle_figure(self):
@@ -206,7 +216,8 @@ class data_processing(object):
     #list: 1)acc, 2)precision, 3)recall, 4)F1 score
 
         if len(no_shuffle) != 4 or len(shuffle) != 4:
-            raise ValueError, "Input is wrong"
+            print "Need more input"
+            return
 
         else:
             fig, ax = plt.subplots()
@@ -239,15 +250,22 @@ class data_processing(object):
             plt.show()
 
 
+
 if __name__ == '__main__':
 
     #generate file once
     model = data_processing()
     #model.set_root("/path/to/Data Set/")
-    model.set_test_person("Xiao Yan") #choose the person to be tested
+    model.set_test_person("Hao Wu") #choose the person to be tested
     model.generate_training_data()
     model.generate_test_data()
+
+    model.save_test_data()
+    model.save_training_data()
+
     model.model_training()
+    model.draw_shuffle_figure()
+
 
 
     #save and load multiple times
@@ -262,7 +280,7 @@ if __name__ == '__main__':
 
     model.shuffle_data()
     model.model_training()
-    #model.draw_shuffle_figure()
+    model.draw_shuffle_figure()
 
 
     #reset to original state (if the data is saved)
