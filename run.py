@@ -272,7 +272,7 @@ if __name__ == '__main__':
 
     model = data_processing()
     #model.set_root("/path/to/Data Set/")
-    model.set_test_person("Hao Wu") #choose the person to be tested
+    model.set_test_person("Zhehan Li") #choose the person to be tested
     model.generate_training_data()
     model.generate_test_data()
 
