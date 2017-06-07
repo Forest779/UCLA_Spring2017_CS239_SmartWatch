@@ -7,8 +7,8 @@ from TFreqAnalysis import *
 
 class data_reader():
 	def __init__(self):
-		self.feature_final=None
-		self.label_Voted=None
+		self.feature_final = None
+		self.label_Voted = None
 		self.step_data = None
 
 
@@ -30,8 +30,8 @@ class data_reader():
 							start=num+12000
 						last=num
 					end_list.append(last)
-		start=max(start_list)+12000 #skip the first 1200 ms
-		end=min(end_list)
+		start=max(start_list)+12000 #skip the first 12000 ms (12s)
+		end=min(end_list)-12000 #skip the last 12000 ms (12s)
 		if start<=end:
 			return (start,end)
 		else:

@@ -163,7 +163,7 @@ class data_processing(object):
             raise IOError,"Error loading test data"
 
 
-    def model_training(self):
+    def model_training(self, feature_report = False):
         print ""
         print "Test person is: " + self.test_name
         print ""
@@ -189,6 +189,10 @@ class data_processing(object):
         print "Report:"
         print classification_report(self.Y_true, self.Y_pred)
 
+        if feature_report:
+            importance = clf.feature_importances_
+            print importance
+
     def randomforest_tuning(self, est_range, mdep_range):
         acc_result = []
         for i in est_range:
@@ -207,19 +211,19 @@ if __name__ == '__main__':
     model = data_processing()
     # model.set_root("/path/to/Data Set/")
     model.set_root("/Users/lizhehan/UCLA/CS-239/Data Set/")
-    model.set_test_person("Xiao Yan") #choose the person to be tested
-    model.generate_training_data()
-    model.generate_test_data()
-    model.model_training()
+    # model.set_test_person("Xiao Yan") #choose the person to be tested
+    # model.generate_training_data()
+    # model.generate_test_data()
+    # model.model_training()
 
     #save and load multiple times
 
-    model.save_training_data()
-    model.save_test_data()
+    # model.save_training_data()
+    # model.save_test_data()
 
-    # model.load_training_data()
-    # model.load_test_data()
-    # model.model_training()
+    model.load_training_data()
+    model.load_test_data()
+    model.model_training(feature_report = True)
     # model.randomforest_tuning(xrange(500,2001,500), xrange(20,101,20))
 
     #shuffle
