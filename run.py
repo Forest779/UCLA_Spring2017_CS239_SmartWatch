@@ -256,6 +256,7 @@ class data_processing(object):
 
             plt.xlabel('Metrics')
             plt.ylabel('Scores')
+            plt.ylim((0.7,1.0))
             plt.title('Metrics without shuffle vs shuffle')
             plt.xticks(index + bar_width, ('Acc', 'Prec', 'Rec', 'F1'))
             plt.legend()
@@ -272,15 +273,15 @@ if __name__ == '__main__':
 
     model = data_processing()
     #model.set_root("/path/to/Data Set/")
-    model.set_test_person("Zhehan Li") #choose the person to be tested
-    model.generate_training_data()
-    model.generate_test_data()
+    #model.set_test_person("Zhehan Li") #choose the person to be tested
+    #model.generate_training_data()
+    #model.generate_test_data()
 
-    model.save_test_data()
-    model.save_training_data()
+    #model.save_test_data()
+    #model.save_training_data()
 
-    model.model_training(feature_report = True)
-    model.draw_shuffle_figure()
+    #model.model_training(feature_report = True)
+    #model.draw_shuffle_figure()
 
     #save and load multiple times
     # model.save_training_data()
@@ -288,9 +289,9 @@ if __name__ == '__main__':
 
     #model.save_training_data()
     #model.save_test_data()
-    #model.load_training_data()
-    #model.load_test_data()
-    #model.model_training()
+    model.load_training_data()
+    model.load_test_data()
+    model.model_training()
 
     #shuffle
     model.shuffle_data()
