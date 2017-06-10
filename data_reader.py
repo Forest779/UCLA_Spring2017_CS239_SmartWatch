@@ -4,6 +4,7 @@ import os
 import csv
 from scipy.interpolate import interp1d
 from TFreqAnalysis import *
+from new_feature import *
 import math
 
 class data_reader():
@@ -109,16 +110,28 @@ class data_reader():
 			if cur_time>=cuttingpoints[cutting_index] and cur_time<cuttingpoints[cutting_index+1]:
 				batch.append(row)
 			if cur_time>cuttingpoints[cutting_index+1]:
-				#line=self.__process_batch(batch)
+				line=self.__process_batch(batch)
 
-                                line=self.__processBatchNew(batch)
+                # line=self.__processBatchNew(batch)
+
 				if "linear_acceleration" in filepath:
-				    #print "Adding Fast Fourier transform data for linear_acceleration"
+				    #Adding Fast Fourier transform data for linear_acceleration
 				    addition = self.__fft(batch)
-
+				    line[0] += addition
+				    #Adding range for linear_acceleration
+				    addition = self.__range_linear_acc(batch)
+				    line[0] += addition
+				    #Adding integral for linear_acceleration
+				    addition = self.__integral_linear_acc(batch)
 				    line[0] += addition
 
-				    #print "FFT data added"
+				if "gravity" in filepath:
+				    #Adding range for gravity
+				    addition = self.__range_gravity(batch)
+				    line[0] += addition
+				    #Adding Kurtosis for gravity
+				    addition = self.__Kurtosis_gravity(batch)
+				    line[0] += addition
 
 				feature_Array.append(line[0])
 				label_Array.append(line[1])
@@ -308,3 +321,27 @@ class data_reader():
 
 		else:
 		    return None
+
+        def __range_linear_acc(self,batch):
+            newbatch = np.asarray(batch)
+            newbatch = newbatch[:,:4].astype(np.float)
+            #print newbatch
+            return get_range_of_linear_acceleration(newbatch, 0.2, 0.8)
+
+        def __integral_linear_acc(self,batch):
+            newbatch = np.asarray(batch)
+            newbatch = newbatch[:,:4].astype(np.float)
+            #print newbatch
+            return get_integral_of_linear_acceleration(newbatch)
+
+        def __range_gravity(self,batch):
+            newbatch = np.asarray(batch)
+            newbatch = newbatch[:,:4].astype(np.float)
+            #print newbatch
+            return get_range_of_gravity_vector(newbatch, 0.2, 0.8)
+
+        def __Kurtosis_gravity(self,batch):
+            newbatch = np.asarray(batch)
+            newbatch = newbatch[:,:4].astype(np.float)
+            #print newbatch
+            return get_Kurtosis_of_gravity_vector(newbatch)

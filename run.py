@@ -3,6 +3,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import *
 from sklearn.utils import shuffle
 import matplotlib.pyplot as plt
+from operator import itemgetter
 
 class data_processing(object):
 
@@ -26,6 +27,10 @@ class data_processing(object):
 
         self.no_shuffle_metric = []
         self.shuffle_metric = []
+
+        self.feature_list = []
+        self.importance_list = []
+        self.feature_select = False
 
     def set_root(self,root_path):
         if root_path[-1] != "/":
@@ -196,7 +201,9 @@ class data_processing(object):
 
         if feature_report:
             importance = clf.feature_importances_
-            print importance
+            self.importance_list = importance
+            for i in xrange(len(self.feature_list)):
+                self.feature_list[i].append(self.importance_list[i])
 
         data = precision_recall_fscore_support(self.Y_true, self.Y_pred, average='macro')
 
@@ -265,23 +272,95 @@ class data_processing(object):
             plt.savefig("shuffle.png")
             plt.show()
 
+    def generate_feature_list(self):
+        feature_name = ["Max", "Min", "Avg", "Std"]
+        feature_axis = ["_X_", "_Y_", "_Z_"]
+        feature_axis_plus = ["_X_", "_Y_", "_Z_", "_SMV_"]
+        linear_acc = ["Power_0.3-15Hz", "Power_0.6-2.5Hz", "Power_Domain", "Power_Ratio(Domain/Total)"]
+        feature_code = 0
+        feature_list = []
+        for root, dirs, files in os.walk(self.root):
+            if 'data' in root:
+                for filename in files:
+                    if filename[-3:]=='.gz' and 'sensor' in filename and 'significant_motion' not in filename and 'step' not in filename and 'light' not in filename:
+                        filename = filename[:-12]
+                        filename = filename[filename.rfind('.')+1:]
+                        for fn in feature_name:
+                            for fa in feature_axis:
+                                feature_list.append([feature_code, filename+fa+fn])
+                                feature_code+=1
+                        if "linear_acceleration" in filename:
+                            # __fft
+        				    for fn in linear_acc:
+        				        for fa in feature_axis_plus:
+        				            feature_list.append([feature_code, filename+fa+fn])
+        				            feature_code+=1
+        				    #__range_linear_acc
+        				    for fa in feature_axis:
+        				        feature_list.append([feature_code, filename+fa+".8-.2_Range"])
+        				        feature_code+=1
+        				    #__integral_linear_acc
+        				    for fa in feature_axis:
+        				        feature_list.append([feature_code, filename+fa+"Integral"])
+        				        feature_code+=1
+                        if "gravity" in filename:
+        				    #__range_gravity
+        				    for fa in feature_axis:
+        				        feature_list.append([feature_code, filename+fa+".8-.2_Range"])
+        				        feature_code+=1
+        				    #__Kurtosis_gravity
+        				    for fa in feature_axis:
+        				        feature_list.append([feature_code, filename+fa+"Kurtosis"])
+        				        feature_code+=1
+                break
+        feature_list.append([feature_code, "step_counter_Speed_Avg"])
+        # print feature_list
+        self.feature_list = feature_list
 
+    def generate_imp_csv(self, name):
+        with open(name, 'wb') as f:
+            for item in self.feature_list:
+                line = str(item[0]) + ',' + item[1] + ',' + str(item[2]) + '\n'
+                f.write(line.encode('utf-8'))
+
+    def feature_selection(self, num = 10):
+        self.feature_select = False
+        self.feature_list.sort(key = itemgetter(2), reverse = True)
+        print self.feature_list
+        print self.X_train_total.shape
+        print self.X_test.shape
+        X_train_total = self.X_train_total
+        X_test = self.X_test
+        feature_list = self.feature_list
+        self.X_train_total = X_train_total[:,0:1]
+        self.X_test = X_test[:,0:1]
+        self.feature_list = []
+        for i in xrange(num):
+            col = feature_list[i][0]
+            self.X_train_total = np.hstack((self.X_train_total, X_train_total[:,col:col+1]))
+            self.X_test = np.hstack((self.X_test, X_test[:,col:col+1]))
+            self.feature_list.append([col,feature_list[i][1]])
+        self.X_train_total = self.X_train_total[:,1:]
+        self.X_test = self.X_test[:,1:]
+        print self.feature_list
+        print self.X_train_total.shape
+        print self.X_test.shape
 
 if __name__ == '__main__':
 
     #generate file once
 
     model = data_processing()
-    #model.set_root("/path/to/Data Set/")
-    #model.set_test_person("Zhehan Li") #choose the person to be tested
-    #model.generate_training_data()
-    #model.generate_test_data()
-
-    #model.save_test_data()
-    #model.save_training_data()
-
-    #model.model_training(feature_report = True)
-    #model.draw_shuffle_figure()
+    model.set_root("/Users/lizhehan/UCLA/CS-239/Data Set/")
+    model.generate_feature_list()
+    # model.set_test_person("Zhehan Li") #choose the person to be tested
+    model.generate_training_data()
+    model.generate_test_data()
+    #
+    model.save_test_data()
+    model.save_training_data()
+    #
+    # model.draw_shuffle_figure()
 
     #save and load multiple times
     # model.save_training_data()
@@ -289,14 +368,20 @@ if __name__ == '__main__':
 
     #model.save_training_data()
     #model.save_test_data()
-    model.load_training_data()
-    model.load_test_data()
-    model.model_training()
+    # model.load_training_data()
+    # model.load_test_data()
+    model.model_training(feature_report = True)
+    model.generate_imp_csv('imp_origin.csv')
+
+    #feature select
+    model.feature_selection()
+    model.model_training(feature_report = True)
+    model.generate_imp_csv('imp_seletion.csv')
 
     #shuffle
-    model.shuffle_data()
-    model.model_training()
-    model.draw_shuffle_figure()
+    # model.shuffle_data()
+    # model.model_training()
+    # model.draw_shuffle_figure()
 
     #reset to original state (if the data is saved)
     #model.reset_to_noshuffle()
