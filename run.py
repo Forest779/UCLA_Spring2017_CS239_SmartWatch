@@ -275,6 +275,7 @@ class data_processing(object):
 
             plt.xlabel('Metrics')
             plt.ylabel('Scores')
+            plt.ylim((0.7,1.0))
             plt.title('Metrics without shuffle vs shuffle')
             plt.xticks(index + bar_width, ('Acc', 'Prec', 'Rec', 'F1'))
             plt.legend()
