@@ -31,6 +31,8 @@ class data_processing(object):
         self.feature_list = []
         self.importance_list = []
         self.feature_select = False
+        self.no_selection_metric = []
+        self.selection_metric = []
 
     def set_root(self,root_path):
         if root_path[-1] != "/":
@@ -191,6 +193,11 @@ class data_processing(object):
         else:
             print "Result without shuffle:"
 
+        if self.feature_select:
+            print "Result after feature selection:"
+        else:
+            print "Result without selection:"
+
         print "Accuracy: ",acc
 
         print "Confusion matrix:"
@@ -216,6 +223,14 @@ class data_processing(object):
             for i in range(3):
                 self.no_shuffle_metric.append(data[i])
 
+        if self.feature_select:
+            self.selection_metric.append(acc)
+            for i in range(3):
+                self.selection_metric.append(data[i])
+        else:
+            self.no_selection_metric.append(acc)
+            for i in range(3):
+                self.no_selection_metric.append(data[i])
 
 
     def randomforest_tuning(self, est_range, mdep_range):
@@ -244,10 +259,7 @@ class data_processing(object):
         else:
             fig, ax = plt.subplots()
             index = np.arange(len(shuffle))
-
-
         # create plot
-
             bar_width = 0.35
             opacity = 0.8
 
@@ -269,6 +281,41 @@ class data_processing(object):
 
             plt.tight_layout()
             plt.savefig("shuffle.png")
+            plt.show()
+
+    def draw_selection_figure(self, filename):
+        no_selection = self.no_selection_metric
+        selection = self.selection_metric
+    #list: 1)acc, 2)precision, 3)recall, 4)F1 score
+        if len(selection) != 4 or len(no_selection) != 4:
+            print "Need more input"
+            return
+
+        else:
+            fig, ax = plt.subplots()
+            index = np.arange(len(selection))
+        # create plot
+            bar_width = 0.35
+            opacity = 0.8
+
+            rects1 = plt.bar(index, no_selection, bar_width,
+                            alpha=opacity,
+                            color='b',
+                            label='Raw Features')
+
+            rects2 = plt.bar(index + bar_width, selection, bar_width,
+                            alpha=opacity,
+                            color='g',
+                            label='Seleted Features')
+
+            plt.xlabel('Metrics')
+            plt.ylabel('Scores')
+            plt.title('Metrics with raw vs selected features')
+            plt.xticks(index + bar_width, ('Acc', 'Prec', 'Rec', 'F1'))
+            plt.legend()
+
+            plt.tight_layout()
+            plt.savefig(filename)
             plt.show()
 
     def generate_feature_list(self):
@@ -323,7 +370,7 @@ class data_processing(object):
                 f.write(line.encode('utf-8'))
 
     def feature_selection(self, num = 10):
-        self.feature_select = False
+        self.feature_select = True
         self.feature_list.sort(key = itemgetter(2), reverse = True)
         print self.feature_list
         print self.X_train_total.shape
@@ -345,6 +392,29 @@ class data_processing(object):
         print self.X_train_total.shape
         print self.X_test.shape
 
+    def feature_str_select(self, sensor):
+        self.feature_select = True
+        print self.feature_list
+        print self.X_train_total.shape
+        print self.X_test.shape
+        X_train_total = self.X_train_total
+        X_test = self.X_test
+        feature_list = self.feature_list
+        self.X_train_total = X_train_total[:,0:1]
+        self.X_test = X_test[:,0:1]
+        self.feature_list = []
+        for f in feature_list:
+            if sensor in f[1]:
+                col = f[0]
+                self.X_train_total = np.hstack((self.X_train_total, X_train_total[:,col:col+1]))
+                self.X_test = np.hstack((self.X_test, X_test[:,col:col+1]))
+                self.feature_list.append([col,f[1]])
+        self.X_train_total = self.X_train_total[:,1:]
+        self.X_test = self.X_test[:,1:]
+        print self.feature_list
+        print self.X_train_total.shape
+        print self.X_test.shape
+
 if __name__ == '__main__':
 
     #generate file once
@@ -353,11 +423,12 @@ if __name__ == '__main__':
     model.set_root("/Users/lizhehan/UCLA/CS-239/Data Set/")
     model.generate_feature_list()
     # model.set_test_person("Zhehan Li") #choose the person to be tested
-    model.generate_training_data()
-    model.generate_test_data()
+    # model.generate_training_data()
+    # model.generate_test_data()
     #
-    model.save_test_data()
-    model.save_training_data()
+    # model.save_test_data()
+    # model.save_training_data()
+
     #
     # model.draw_shuffle_figure()
 
@@ -365,18 +436,18 @@ if __name__ == '__main__':
     # model.save_training_data()
     # model.save_test_data()
 
-    #model.save_training_data()
-    #model.save_test_data()
-    # model.load_training_data()
-    # model.load_test_data()
+    model.load_training_data()
+    model.load_test_data()
+    model.shuffle_data()
     model.model_training(feature_report = True)
     model.generate_imp_csv('imp_origin.csv')
 
     #feature select
     model.feature_selection()
+    # model.feature_str_select("orientation")
     model.model_training(feature_report = True)
     model.generate_imp_csv('imp_seletion.csv')
-
+    model.draw_selection_figure("Feature_Selection_2.png")
     #shuffle
     # model.shuffle_data()
     # model.model_training()
