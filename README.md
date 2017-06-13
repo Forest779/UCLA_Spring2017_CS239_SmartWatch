@@ -7,3 +7,4 @@ The program will take about 5 minutes (using out data)
 
 The program will output the accurracy, presicion, recall, F-1 value of different acitivity in your terminal
 
+Our github page of this project is https://github.com/yanxiao0201/CS239_SmartWatch
