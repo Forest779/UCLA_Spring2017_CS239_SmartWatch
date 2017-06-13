@@ -1,9 +1,10 @@
 CS239_SmartWatch
-project for CS239 UCLA Spring 2017
+project for CS239 UCLA Spring 2017 
+by Dazhong Gu(404588693), Zhehan Li(400888352), Hao Wu(603974694), Xiao Yan(704534585)
 
-Run commond "python run.py" in your terminal
+In the folder of CS239_Smartwatch ,run commond "python run.py" in your terminal
 
-The program will take about 5 minutes (using out data)
+The program will take about 5 minutes (using our data)
 
 The program will output the accurracy, presicion, recall, F-1 value of different acitivity in your terminal
 
